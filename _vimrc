@@ -306,6 +306,12 @@ endfunction
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
 
+" Bubble single lines
+nmap <C-Up> [e
+nmap <C-Down> ]e
+" Bubble multiple lines
+vmap <C-Up> [egv
+vmap <C-Down> ]egv
 
 "jump to last cursor position when opening a file
 "dont do it when writing a commit log entry
@@ -525,5 +531,3 @@ let g:gundo_disable=1
 " helpful macros
 " brackets after this line
 "inoremap <C-F> o{<CR>}<C-O>O
-
-
