@@ -524,8 +524,8 @@ let g:gundo_disable=1
 "imap  <silent> <F5> <Esc> mmgg=G'm
 "nmap <F6> :cal SetSyn("cpp")<CR>
 "Eclim commands
-"noremap <F9> :CSearchleft_arroy
-"noremap <F10> :CCallHierarchy
+"noremap <F9> :CSearchleft_arroy
+"noremap <F10> :CCallHierarchy
 
 "nmap <leader>v :tabedit $MYVIMRC<CR>
 " Source the vimrc file after saving it
