@@ -276,6 +276,7 @@ let g:NERDTreeWinSize = 40
 nnoremap <f1> :BufExplorer<cr>
 nnoremap <f2> :NERDTreeToggle<cr>
 nnoremap <f3> :TlistToggle<cr>
+nnoremap <f4> :execute "vimgrep /" . expand("<cword>") . "/j **" <Bar> cw<CR>
 
 "source project specific config files
 runtime! projects/**/*.vim
