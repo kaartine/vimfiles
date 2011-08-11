@@ -365,12 +365,20 @@ fun! <SID>StripTrailingWhitespaces()
 endfun
 nmap rs :call <SID>StripTrailingWhitespaces()
 
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
 let g:gundo_disable=1
 
 " auto remove trailing spaces from these files
-"autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
-"autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
-"autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid or when inside an event handler
