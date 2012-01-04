@@ -2,7 +2,7 @@
 "This must be first, because it changes other options as a side effect.
 set nocompatible
 
-"activate pathogen
+"activate pathogen keep these before configuring plugins
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
 
@@ -64,6 +64,9 @@ filetype indent on
 
 "turn on syntax highlighting
 syntax on
+colo railscasts              " color scheme
+
+set guifont=Courier_New:h10:cANSI " font
 
 "some stuff to get the mouse going in term
 set mouse=a
@@ -97,6 +100,7 @@ set statusline+=%m      "modified flag
 set statusline+=%#error#
 set statusline+=%{StatuslineTabWarning()}
 set statusline+=%*
+"set statusline+=%{GitBranch()}
 
 set statusline+=%{StatuslineTrailingSpaceWarning()}
 
@@ -110,6 +114,7 @@ set statusline+=%*
 set statusline+=%#error#
 set statusline+=%{&paste?'[paste]':''}
 set statusline+=%*
+set statusline+=%{fugitive#statusline()}
 
 set statusline+=%=      "left/right separator
 set statusline+=%{StatuslineCurrentHighlight()}\ \ "current highlight
@@ -299,6 +304,33 @@ endfunction
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
 
+" Bubble single lines
+nmap <C-Up> [e
+nmap <C-Down> ]e
+" Bubble multiple lines
+vmap <C-Up> [egv
+vmap <C-Down> ]egv
+
+let mapleader=','
+if exists(":Tabularize")
+  nmap <Leader>t= :Tabularize /=<CR>
+  vmap <Leader>t= :Tabularize /=<CR>
+  nmap <Leader>t: :Tabularize /:\zs<CR>
+  vmap <Leader>t: :Tabularize /:\zs<CR>
+endif
+
+inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
+
+function! s:align()
+  let p = '^\s*|\s.*\s|\s*$'
+  if exists(':Tabularize') && getline('.') =~# '^\s*|' && (getline(line('.')-1) =~# p || getline(line('.')+1) =~# p)
+    let column = strlen(substitute(getline('.')[0:col('.')],'[^|]','','g'))
+    let position = strlen(matchstr(getline('.')[0:col('.')],'.*|\s*\zs.*'))
+    Tabularize/|/l1
+    normal! 0
+    call search(repeat('[^|]*|',column).'\s\{-\}'.repeat('.',position),'ce',line('.'))
+  endif
+endfunction
 
 "jump to last cursor position when opening a file
 "dont do it when writing a commit log entry
@@ -314,3 +346,215 @@ endfunction
 
 "spell check when writing commit logs
 autocmd filetype svn,*commit* set spell
+
+" for creating c++ tags
+nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h hpp -I --langmap=c++:.h.H..hpp.HPP.inl.INL.cpp.CPP<CR>
+nmap <Leader>tr :! ctags --recurse<CR>
+
+" When vimrc is edited, reload it
+autocmd! bufwritepost _vimrc source C:\\Program\ Files\\Vim\\_vimrc
+
+" function to strip trailing spaces
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+nmap rs :call <SID>StripTrailingWhitespaces()
+
+fun! <SID>StripTrailingWhitespaces()
+    let l = line(".")
+    let c = col(".")
+    %s/\s\+$//e
+    call cursor(l, c)
+endfun
+
+let g:gundo_disable=1
+
+" auto remove trailing spaces from these files
+autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
+
+" When editing a file, always jump to the last known cursor position.
+" Don't do it when the position is invalid or when inside an event handler
+" (happens when dropping a file on gvim).
+" Also don't do it when the mark is in the first line, that is the default
+" position when opening a file.
+"if has("autocmd")
+"autocmd BufReadPost *
+"            \ if line("'\"") > 1 && line("'\"") <= line("$") |
+"            \   exe "normal! g`\"" |
+"            \ endif
+"else
+"  set autoindent		" always set autoindenting on
+"endif " has("autocmd")
+
+" Convenient command to see the difference between the current buffer and the
+" file it was loaded from, thus the changes you made.
+" Only define it when not defined already.
+"if !exists(":DiffOrig")
+"  command DiffOrig vert new | set bt=nofile | r # | 0d_ | diffthis
+"		  \ | wincmd p | diffthis
+"endif
+
+" from mswin.vim
+" cut, copy, paste
+"vnoremap <C-X> "+x
+"vnoremap <C-C> "+y
+"map <C-V> "+gP
+
+
+" tell vim where to put its backup files
+"set backupdir=C:\\Temp
+
+" tell vim where to put swap files
+"set dir=C:\\Temp
+
+" Pasting blockwise and linewise selections is not possible in Insert and
+" Visual mode without the +virtualedit feature.  They are pasted as if they
+" were characterwise instead.
+" Uses the paste.vim autoload script.
+"exe 'inoremap <script> <C-V>' paste#paste_cmd['i']
+"exe 'vnoremap <script> <C-V>' paste#paste_cmd['v']
+"imap <S-Insert>		<C-V>
+"vmap <S-Insert>		<C-V>
+
+" Use CTRL-Q to do what CTRL-V used to do
+"noremap <C-Q>		<C-V>
+
+" For CTRL-V to work autoselect must be off.
+" On Unix we have two selections, autoselect can be used.
+"if !has("unix")
+"  set guioptions-=a
+"endif
+
+" Own settings
+
+"set langmenu=none
+
+"set background=dark
+"set sw=4                    " tab settings
+"set ts=4                    " tab settings
+"set sts=4                   " tab settings
+"set laststatus=2            " status line at bottom
+"set statusline+=%{GitBranch()}
+":set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]\ [GIT=%{GitBranch()}]
+
+
+"set showcmd            " Show (partial) command in status line.
+"set ignorecase smartcase  " Do case insensitive matching
+"set incsearch           " search while typing
+"set showmatch          " Show matching brackets.
+"set matchtime=3	       " Show match for .3 s
+"set number             " show line numbers
+"set expandtab          " tabs as spaces
+"set cino={1s,f1s,^-s,g0,=0,(s,u0    " S60
+"set cino={0s,g0,=0,(s,u0    " S60 Qt
+"set cino=g0,=0,(s,u0    " S60 Qt
+                        " indent style
+                        " {1s indent { one stop
+                        " f1s indent function brackets one stop
+                        " ^-s indent function content -1 stop
+                        " g0 indent scope declr at brace level (public: etc)
+                        " =0 { after case not indented
+                        " (s first level unclosed parenthesis indented 1 stop
+                        " or
+                        " (0 first level unclosed parenthesis indented at prev
+                        "   line level when continuing on next line
+                        " u0 deeper level unclosed parenthesis indented 0
+                        "   when continuing on next line
+" Symbian indention
+" set cinoptions=>s,e0,n0,f0,{1s,}0,^0,:s,=s,l0,b0,gs,hs,ps,ts,is,+s,c3,C0,/0,(2s,us,U0,w0,W0,m0,j0,)20,*30,#0
+
+"set foldmethod=syntax   " fold by syntax
+"set foldlevel=20        " folds open by default
+"set foldcolumn=2        " margin width for fold markers
+"if has('mouse')
+"    set mouse=a         " mouse in terminal
+"endif
+"set wildmenu            " mini menu when tab completing
+"set mousefocus          " focus follows mouse, linux style
+"set noequalalways       " ~only active split area resizes
+
+"set filetype=on         " required by Taglist plug-in
+"filetype plugin on
+
+"set iskeyword-=.
+"autocmd FileType python set omnifunc=pythoncomplete#Complete " omni complete for python
+
+"set ofu=syntaxcomplete#Complete
+
+"taglist plug-in
+"let Tlist_Show_One_File = 1   " tags for active buffer only
+"let Tlist_Sort_Type = "name"  " sort by name
+
+" omni cpp completion plug-in
+"let OmniCpp_MayCompleteDot = 0      " no automatic completion for '.'
+"let OmniCpp_MayCompleteArrow = 0    " no automatic completion for '->'
+"autocmd InsertLeave * if pumvisible() == 0|pclose|endif  " autoclose omni completion preview window
+
+" show filetypes menu
+" then can :cal SetSyn("cpp") as done below
+"if has("gui_running")
+ "   let do_syntax_sel_menu = 1|runtime! synmenu.vim|aunmenu &Syntax.&Show\ filetypes\ in\ menu
+"endif
+
+"set tags=tags;/                                 " recursively serach for tags
+"set tags+=C:\Qt\4.7.1-symbian\src\tags      " Qt (symbian) tags
+"set tags+=c:\Qt\Symbian\4.6.3\src\tags      " Qt (symbian) tags
+"set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags
+"set tags+=M:\\epoc32\\include\\MCL_tags
+
+
+" cscope
+" format:  cs add /Code/<folder>/cscope.out /Code/<folder>     " NOTE! no trailing '/'
+"if has("cscope")
+"    set cspc=3    " displayed path components, X last ones, 0 is full path
+"    if filereadable("/Msf/Code/cscope.out")
+"        cs add /Msf/Code/cscope.out /Msf/Code " add cscope database with prepend path
+"    endif
+"endif
+"set nocscopetag  " dont search cscope at same time with tags
+
+" key mappings
+"nmap <M-n> :bn<CR>
+"nmap <M-p> :bp<CR>
+"nmap <F2> :cp<CR>
+"nmap <F3> :cn<CR>
+"nmap <F4> :nohls<CR>
+"nmap <F5> :cal SetSyn("java")<CR>
+"map   <silent> <F5> mmgg=G'm
+"imap  <silent> <F5> <Esc> mmgg=G'm
+"nmap <F6> :cal SetSyn("cpp")<CR>
+"Eclim commands
+"noremap <F9> :CSearchleft_arroy
+"noremap <F10> :CCallHierarchy
+
+"nmap <leader>v :tabedit $MYVIMRC<CR>
+" Source the vimrc file after saving it
+"if has("autocmd")
+"  autocmd bufwritepost _vimrc source $MYVIMRC
+"endif
+
+" NERD tree
+"map <F11> :NERDTreeToggle<CR>
+
+"nmap <F12> :TlistToggle<CR>
+
+"nmap ,t <Esc>:tabnew<CR>
+"nmap <M-r> :call <SID>StripTrailingWhitespaces()
+
+" Fuzzy file finder
+"map <M-f> :FufCoverageFile<CR>
+
+" NERD commenter
+"map <M-c> <plug>NERDCommenterTogglej
+"map <M-x> <plug>NERDCommenterYankp
+"map <M-v> <plug>NERDCommenterMinimal
+
+" helpful macros
+" brackets after this line
+"inoremap <C-F> o{<CR>}<C-O>O
