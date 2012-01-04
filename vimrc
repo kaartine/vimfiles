@@ -66,7 +66,7 @@ filetype indent on
 syntax on
 colo railscasts              " color scheme
 
-set guifont=Courier_New:h10:cANSI " font
+"set guifont=Courier_New:h10:cANSI " font
 
 "some stuff to get the mouse going in term
 set mouse=a
@@ -272,8 +272,8 @@ let g:NERDTreeMouseMode = 2
 let g:NERDTreeWinSize = 40
 
 "explorer mappings
-nnoremap <f1> :BufExplorer<cr>
-nnoremap <f2> :NERDTreeToggle<cr>
+nnoremap <f1> :NERDTreeToggle<cr>
+nnoremap <f2> :BufExplorer<cr>
 nnoremap <f3> :TlistToggle<cr>
 
 "source project specific config files
@@ -375,6 +375,7 @@ let g:gundo_disable=1
 " auto remove trailing spaces from these files
 autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.c :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 
