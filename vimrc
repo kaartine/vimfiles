@@ -253,7 +253,8 @@ let g:syntastic_enable_signs=1
 let g:syntastic_auto_loc_list=2
 
 "snipmate settings
-let g:snips_author = "Martin Grenfell"
+let g:snips_author = "Jukka Kaartinen"
+
 
 "taglist settings
 let Tlist_Compact_Format = 1
@@ -351,8 +352,38 @@ autocmd filetype svn,*commit* set spell
 nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h hpp -I --langmap=c++:.h.H..hpp.HPP.inl.INL.cpp.CPP<CR>
 nmap <Leader>tr :! ctags --recurse<CR>
 
+"let s:cscope_files = find . -regex ".*\.\(c\|h\|hpp\|cc\|cpp\)" -print
+"map <F8> :!ctags -R --totals --c++-kinds=+p --fields=+iaS --extra=+qf .<CR>
+map <F8> :!ctags -R --totals --c++-kinds=+px --c-kinds=+px --fields=+iaSn -I --extra=+qf --langmap=c++:.h.H.hpp.inl.INL.cpp.CPP,c:.h.H.c.C<CR>
+
+nmap <F9> :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
+  \:!cscope -b -i cscope.files -f cscope.out<CR>
+  \:cs reset<CR>
+
+
+"find . -regex ".*\.\(c\|h\|hpp\|cc\|cpp\)" -print | ctags --totals --recurse --extra="+qf" --fields="+i" -L -
+"select_files > cscope.files
+"ctags -L s:cscope_files
+"ctags -e -L cscope_files
+"cscope -ub -i cscope_files
+
+"set tags=tags;/                                 " recursively serach for tags
+"set tags+=C:\Qt\4.7.1-symbian\src\tags      " Qt (symbian) tags
+"set tags+=c:\Qt\Symbian\4.6.3\src\tags      " Qt (symbian) tags
+"set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags
+"set tags+=M:\\epoc32\\include\\MCL_tags
+
+" cscope is in autoload/cscope_maps.vim
+
+
+
 " When vimrc is edited, reload it
-autocmd! bufwritepost _vimrc source C:\\Program\ Files\\Vim\\_vimrc
+autocmd! bufwritepost .vimrc source ~\.vimrc
+
+" a plugin to change between foo.c and foo.h files
+if exists(':A')
+    nmap <C-a> :A<CR>
+endif
 
 " function to strip trailing spaces
 fun! <SID>StripTrailingWhitespaces()
@@ -503,22 +534,7 @@ autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
  "   let do_syntax_sel_menu = 1|runtime! synmenu.vim|aunmenu &Syntax.&Show\ filetypes\ in\ menu
 "endif
 
-"set tags=tags;/                                 " recursively serach for tags
-"set tags+=C:\Qt\4.7.1-symbian\src\tags      " Qt (symbian) tags
-"set tags+=c:\Qt\Symbian\4.6.3\src\tags      " Qt (symbian) tags
-"set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags
-"set tags+=M:\\epoc32\\include\\MCL_tags
 
-
-" cscope
-" format:  cs add /Code/<folder>/cscope.out /Code/<folder>     " NOTE! no trailing '/'
-"if has("cscope")
-"    set cspc=3    " displayed path components, X last ones, 0 is full path
-"    if filereadable("/Msf/Code/cscope.out")
-"        cs add /Msf/Code/cscope.out /Msf/Code " add cscope database with prepend path
-"    endif
-"endif
-"set nocscopetag  " dont search cscope at same time with tags
 
 " key mappings
 "nmap <M-n> :bn<CR>
