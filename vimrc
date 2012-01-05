@@ -367,7 +367,8 @@ nmap <F9> :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
 "ctags -e -L cscope_files
 "cscope -ub -i cscope_files
 
-"set tags=tags;/                                 " recursively serach for tags
+set tags=tags;/                                 " recursively serach for tags
+set tags+=~/.vim/tags/usr_include_tags
 "set tags+=C:\Qt\4.7.1-symbian\src\tags      " Qt (symbian) tags
 "set tags+=c:\Qt\Symbian\4.6.3\src\tags      " Qt (symbian) tags
 "set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags
