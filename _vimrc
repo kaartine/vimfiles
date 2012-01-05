@@ -273,8 +273,8 @@ let g:NERDTreeMouseMode = 2
 let g:NERDTreeWinSize = 40
 
 "explorer mappings
-nnoremap <f1> :BufExplorer<cr>
-nnoremap <f2> :NERDTreeToggle<cr>
+nnoremap <f1> :NERDTreeToggle<cr>
+nnoremap <f2> :BufExplorer<cr>
 nnoremap <f3> :TlistToggle<cr>
 nnoremap <f4> :execute "vimgrep /" . expand("<cword>") . "/j **" <Bar> cw<CR>
 
@@ -354,7 +354,11 @@ nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h h
 nmap <Leader>tr :! ctags --recurse<CR>
 
 " When vimrc is edited, reload it
-autocmd! bufwritepost _vimrc source C:\\Program\ Files\\Vim\\_vimrc
+if has('win32') || has('win64')
+    autocmd! bufwritepost _vimrc source C:\\Program\ Files\\Vim\\_vimrc
+else
+    autocmd! bufwritepost .vimrc source ~/.vimrc
+endif
 
 " function to strip trailing spaces
 fun! <SID>StripTrailingWhitespaces()
@@ -379,6 +383,12 @@ autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
 autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
+autocmd BufWritePre *.sass :call <SID>StripTrailingWhitespaces()
+
+" Fuzzy file finder
+"map <M-f> :FufCoverageFile<CR>
+
+
 
 " When editing a file, always jump to the last known cursor position.
 " Don't do it when the position is invalid or when inside an event handler
