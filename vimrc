@@ -89,6 +89,13 @@ let mapleader=','
 " Fuzzy file finder
 nnoremap <Leader>fc :FufCoverageFile<CR>
 
+"nmap ,t <Esc>:tabnew<CR>
+
+" NERD commenter
+map <Leader>c <plug>NERDCommenterTogglej
+map <Leader>x <plug>NERDCommenterYankp
+map <Leader>v <plug>NERDCommenterMinimal
+
 "ragtag Ghetto XML/HTML mappings (formerly allml.vim)
 let g:ragtag_global_maps = 1
 
@@ -524,22 +531,6 @@ autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 
 "set langmenu=none
 
-"set background=dark
-"set sw=4                    " tab settings
-"set ts=4                    " tab settings
-"set sts=4                   " tab settings
-"set laststatus=2            " status line at bottom
-"set statusline+=%{GitBranch()}
-":set statusline=%F%m%r%h%w\ [FORMAT=%{&ff}]\ [TYPE=%Y]\ [ASCII=\%03.3b]\ [HEX=\%02.2B]\ [POS=%04l,%04v][%p%%]\ [LEN=%L]\ [GIT=%{GitBranch()}]
-
-
-"set showcmd            " Show (partial) command in status line.
-"set ignorecase smartcase  " Do case insensitive matching
-"set incsearch           " search while typing
-"set showmatch          " Show matching brackets.
-"set matchtime=3	       " Show match for .3 s
-"set number             " show line numbers
-"set expandtab          " tabs as spaces
 "set cino={1s,f1s,^-s,g0,=0,(s,u0    " S60
 "set cino={0s,g0,=0,(s,u0    " S60 Qt
 "set cino=g0,=0,(s,u0    " S60 Qt
@@ -558,18 +549,8 @@ autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 " Symbian indention
 " set cinoptions=>s,e0,n0,f0,{1s,}0,^0,:s,=s,l0,b0,gs,hs,ps,ts,is,+s,c3,C0,/0,(2s,us,U0,w0,W0,m0,j0,)20,*30,#0
 
-"set foldmethod=syntax   " fold by syntax
-"set foldlevel=20        " folds open by default
-"set foldcolumn=2        " margin width for fold markers
-"if has('mouse')
-"    set mouse=a         " mouse in terminal
-"endif
-"set wildmenu            " mini menu when tab completing
 "set mousefocus          " focus follows mouse, linux style
 "set noequalalways       " ~only active split area resizes
-
-"set filetype=on         " required by Taglist plug-in
-"filetype plugin on
 
 "set iskeyword-=.
 "autocmd FileType python set omnifunc=pythoncomplete#Complete " omni complete for python
@@ -585,20 +566,10 @@ autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 "let OmniCpp_MayCompleteArrow = 0    " no automatic completion for '->'
 "autocmd InsertLeave * if pumvisible() == 0|pclose|endif  " autoclose omni completion preview window
 
-" show filetypes menu
-" then can :cal SetSyn("cpp") as done below
-"if has("gui_running")
- "   let do_syntax_sel_menu = 1|runtime! synmenu.vim|aunmenu &Syntax.&Show\ filetypes\ in\ menu
-"endif
-
-
 
 " key mappings
 "nmap <M-n> :bn<CR>
 "nmap <M-p> :bp<CR>
-"nmap <F2> :cp<CR>
-"nmap <F3> :cn<CR>
-"nmap <F4> :nohls<CR>
 "nmap <F5> :cal SetSyn("java")<CR>
 "map   <silent> <F5> mmgg=G'm
 "imap  <silent> <F5> <Esc> mmgg=G'm
@@ -613,21 +584,7 @@ autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 "  autocmd bufwritepost _vimrc source $MYVIMRC
 "endif
 
-" NERD tree
-"map <F11> :NERDTreeToggle<CR>
 
-"nmap <F12> :TlistToggle<CR>
-
-"nmap ,t <Esc>:tabnew<CR>
-"nmap <M-r> :call <SID>StripTrailingWhitespaces()
-
-" Fuzzy file finder
-"map <M-f> :FufCoverageFile<CR>
-
-" NERD commenter
-"map <M-c> <plug>NERDCommenterTogglej
-"map <M-x> <plug>NERDCommenterYankp
-"map <M-v> <plug>NERDCommenterMinimal
 
 " helpful macros
 " brackets after this line
