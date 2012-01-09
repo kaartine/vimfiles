@@ -1,32 +1,116 @@
 "Use Vim settings, rather then Vi settings (much better!).
 "This must be first, because it changes other options as a side effect.
 set nocompatible
+syntax on "turn on syntax highlighting
+set encoding=utf-8
 
 "activate pathogen keep these before configuring plugins
 call pathogen#runtime_append_all_bundles()
 call pathogen#helptags()
+"call pathogen#infect()
 
-"allow backspacing over everything in insert mode
-set backspace=indent,eol,start
+"load ftplugins and indent files
+filetype plugin on
+filetype indent on
 
-"store lots of :cmdline history
-set history=1000
+set background=dark
+color molokai              " color scheme
 
 set showcmd     "show incomplete cmds down the bottom
 set showmode    "show current mode down the bottom
-
+set ruler       "show the cursor position all the time
 set number      "show line numbers
 
-"display tabs and trailing spaces
-set list
-set listchars=tab:▷⋅,trail:⋅,nbsp:⋅
+"hide buffers when not displayed
+set hidden
 
+"display tabs and trailing spaces
+set nowrap      "dont wrap lines
+"set linebreak   "wrap lines at convenient points
+set list        "show invisible characters
+set shiftwidth=2 "an autoindent (with <<) is two spaces
+set softtabstop=2
+set expandtab   "use spaces, not tabs
+set autoindent
+set backspace=indent,eol,start "allow backspacing over everything in insert mode
+
+"List chars
+set listchars=tab:\ \
+set listchars+=trail:.
+"set listchars+=nbsp:.
+set listchars+=extends:> "The character to show in the last column when wrap is off
+            "and the line continues beyond the right of the screen
+set listchars+=precedes:< "The character to show in the last column when wrap
+                            "is off and the lne continues beyond the right of the screen
 
 set incsearch   "find the next match as we type the search
 set hlsearch    "hilight searches by default
+set ignorecase  "searches are case insensitive
+set smartcase   " ... unless they contain at least one capital letter
 
-set wrap        "dont wrap lines
-set linebreak   "wrap lines at convenient points
+function! s:setupWrapping()
+  set wrap
+  set wrapmargin=2
+  set textwidth=72
+endfunction
+
+if has("autocmd")
+  " In Makefiles, use real tabs, not tabs expanded to spaces
+  au FileType make set noexpandtab
+
+  " Make sure all mardown files have the correct filetype set and setup wrapping
+  au BufRead,BufNewFile *.{md,markdown,mdown,mkd,mkdn,txt} setf markdown | call s:setupWrapping()
+
+  " Treat JSON files like JavaScript
+  au BufNewFile,BufRead *.json set ft=javascript
+
+  " make Python follow PEP8 ( http://www.python.org/dev/peps/pep-0008/ )
+  au FileType python set softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79
+
+  " Remember last location in file, but not for commit messages.
+  " see :help last-position-jump
+  au BufReadPost * if &filetype !~ '^git\c' && line("'\"") > 0 && line("'\"") <= line("$")
+              \| exe "normal! g`\"" | endif
+endif
+
+"vertical/horizontal scroll off settings
+set scrolloff=3
+set sidescrolloff=7
+set sidescroll=1
+
+" don't use Ex mode, use Q for formatting
+map Q gq
+
+"make <cr> clear the highlight as well as redraw
+nnoremap <CR> :nohls<CR><C-L>
+
+let mapleader=','
+
+" Fuzzy file finder
+nnoremap <Leader>fc :FufCoverageFile<CR>
+
+"ragtag Ghetto XML/HTML mappings (formerly allml.vim)
+let g:ragtag_global_maps = 1
+
+" ack
+let g:ackprg="ack-grep -H --nocolor --nogroup --column"
+
+" find merge conflict markers
+nmap <silent> <leader>cf <ESC>/\v^[<=>]{7}( .*\|$)<CR>
+
+command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
+
+" easier navigation between split windows
+nnoremap <c-j> <c-w>j
+nnoremap <c-k> <c-w>k
+nnoremap <c-h> <c-w>h
+nnoremap <c-l> <c-w>l
+
+set backupdir=~/.vim/_backup " where to put backup files.
+set directory=~/.vim/_temp " where to put swap files."
+
+"stora lots of :cmdline history
+set history=1000
 
 if v:version >= 703
     "undo settings
@@ -35,12 +119,6 @@ if v:version >= 703
 
     set colorcolumn=+1 "mark the ideal max text width
 endif
-
-"default indent settings
-set shiftwidth=4
-set softtabstop=4
-set expandtab
-set autoindent
 
 "folding settings
 set foldmethod=indent   "fold based on indent
@@ -53,20 +131,8 @@ set wildignore=*.o,*.obj,*~ "stuff to ignore when tab completing
 
 set formatoptions-=o "dont continue comments when pushing o/O
 
-"vertical/horizontal scroll off settings
-set scrolloff=3
-set sidescrolloff=7
-set sidescroll=1
 
-"load ftplugins and indent files
-filetype plugin on
-filetype indent on
-
-"turn on syntax highlighting
-syntax on
-colo railscasts              " color scheme
-
-"set guifont=Courier_New:h10:cANSI " font
+"set guifont=DejaVu:Sans:Mono "":h10:cANSI " font
 
 "some stuff to get the mouse going in term
 set mouse=a
@@ -74,9 +140,6 @@ set ttymouse=xterm2
 
 "tell the term has 256 colors
 set t_Co=256
-
-"hide buffers when not displayed
-set hidden
 
 "statusline setup
 set statusline=%f       "tail of the filename
@@ -100,11 +163,10 @@ set statusline+=%m      "modified flag
 set statusline+=%#error#
 set statusline+=%{StatuslineTabWarning()}
 set statusline+=%*
-"set statusline+=%{GitBranch()}
 
 set statusline+=%{StatuslineTrailingSpaceWarning()}
 
-set statusline+=%{StatuslineLongLineWarning()}
+"set statusline+=%{StatuslineLongLineWarning()}
 
 set statusline+=%#warningmsg#
 set statusline+=%{SyntasticStatuslineFlag()}
@@ -118,9 +180,11 @@ set statusline+=%{fugitive#statusline()}
 
 set statusline+=%=      "left/right separator
 set statusline+=%{StatuslineCurrentHighlight()}\ \ "current highlight
-set statusline+=%c,     "cursor column
+set statusline+=%v,     "cursor column
 set statusline+=%l/%L   "cursor line/total lines
 set statusline+=\ %P    "percent through file
+set statusline+=Buf:#%n
+set statusline+=[%b][0x%B]
 set laststatus=2
 
 "recalculate the trailing whitespace warning when idle, and after saving
@@ -185,7 +249,7 @@ function! StatuslineTabWarning()
 endfunction
 
 "recalculate the long line warning when idle and after saving
-autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
+"autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
 
 "return a warning for "long lines" where "long" is either &textwidth or 80 (if
 "no &textwidth is set)
@@ -285,13 +349,6 @@ if !has("gui")
     let g:CSApprox_loaded = 1
 endif
 
-"make <c-l> clear the highlight as well as redraw
-nnoremap <C-L> :nohls<CR><C-L>
-inoremap <C-L> <C-O>:nohls<CR>
-
-"map Q to something useful
-noremap Q gq
-
 "make Y consistent with C and D
 nnoremap Y y$
 
@@ -308,11 +365,11 @@ vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
 " Bubble single lines
 nmap <C-Up> [e
 nmap <C-Down> ]e
+
 " Bubble multiple lines
 vmap <C-Up> [egv
 vmap <C-Down> ]egv
 
-let mapleader=','
 if exists(":Tabularize")
   nmap <Leader>t= :Tabularize /=<CR>
   vmap <Leader>t= :Tabularize /=<CR>
@@ -377,9 +434,8 @@ set tags+=~/.vim/tags/usr_include_tags
 " cscope is in autoload/cscope_maps.vim
 
 
-
 " When vimrc is edited, reload it
-autocmd! bufwritepost .vimrc source ~\.vimrc
+autocmd! bufwritepost vimrc source ~\.vimrc
 
 " a plugin to change between foo.c and foo.h files
 if exists(':A')

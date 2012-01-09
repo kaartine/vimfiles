@@ -10,6 +10,7 @@ Grab the plugin submodules:
 
 Make sure vim finds the vimrc file by either symlinking it:
 `ln -s ~/.vim/vimrc ~/.vimrc`
+`ln -s ~/.vim/gvimrc ~/.gvimrc`
 
 or by sourcing it from  your own ~/.vimrc:
 `source ~/.vim/vimrc`
