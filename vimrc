@@ -1,17 +1,18 @@
 "Use Vim settings, rather then Vi settings (much better!).
 "This must be first, because it changes other options as a side effect.
 set nocompatible
+
+"activate pathogen keep these before configuring plugins
+"runtime! autoload/pathogen.vim
+"call pathogen#helptags()
+"call pathogen#runtime_append_all_bundles()
+call pathogen#infect()
+
 syntax on "turn on syntax highlighting
 set encoding=utf-8
 
-"activate pathogen keep these before configuring plugins
-call pathogen#runtime_append_all_bundles()
-call pathogen#helptags()
-"call pathogen#infect()
-
 "load ftplugins and indent files
-filetype plugin on
-filetype indent on
+filetype plugin indent on
 
 set background=dark
 color molokai              " color scheme
@@ -28,8 +29,8 @@ set hidden
 set nowrap      "dont wrap lines
 "set linebreak   "wrap lines at convenient points
 set list        "show invisible characters
-set shiftwidth=2 "an autoindent (with <<) is two spaces
-set softtabstop=2
+set shiftwidth=4 "an autoindent (with <<) is two spaces
+set softtabstop=4
 set expandtab   "use spaces, not tabs
 set autoindent
 set backspace=indent,eol,start "allow backspacing over everything in insert mode
@@ -54,6 +55,8 @@ function! s:setupWrapping()
   set textwidth=72
 endfunction
 
+let mapleader=','
+
 if has("autocmd")
   " In Makefiles, use real tabs, not tabs expanded to spaces
   au FileType make set noexpandtab
@@ -67,11 +70,72 @@ if has("autocmd")
   " make Python follow PEP8 ( http://www.python.org/dev/peps/pep-0008/ )
   au FileType python set softtabstop=4 tabstop=4 shiftwidth=4 textwidth=79
 
-  " Remember last location in file, but not for commit messages.
-  " see :help last-position-jump
-  au BufReadPost * if &filetype !~ '^git\c' && line("'\"") > 0 && line("'\"") <= line("$")
-              \| exe "normal! g`\"" | endif
+  "recalculate the trailing whitespace warning when idle, and after saving
+  autocmd cursorhold,bufwritepost * unlet! b:statusline_trailing_space_warning
+
+  "recalculate the tab warning flag when idle and after writing
+  autocmd cursorhold,bufwritepost * unlet! b:statusline_tab_warning
+
+  "jump to last cursor position when opening a file
+  "dont do it when writing a commit log entry
+  autocmd BufReadPost * call SetCursorPosition()
+  function! SetCursorPosition()
+      if &filetype !~ 'svn\|commit\|^git\c'
+          if line("'\"") > 0 && line("'\"") <= line("$")
+              exe "normal! g`\""
+              normal! zz
+          endif
+      end
+  endfunction
+
+  "spell check when writing commit logs
+  autocmd filetype svn,*commit* set spell
+
+  "recalculate the long line warning when idle and after saving
+  "autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
+
+  " When vimrc is edited, reload it
+  autocmd! bufwritepost vimrc source ~/.vimrc
+
+  " auto remove trailing spaces from these files
+  autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.c :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
+
+  "Custom mappings for plugins
+  autocmd VimEnter * call Plugins()"
 endif
+
+"PLUGIN OPTIONS
+function! Plugins()
+
+    if exists(':Tabularize')
+        nmap <Leader>t= :Tabularize /=<CR>
+        vmap <Leader>t= :Tabularize /=<CR>
+        nmap <Leader>t: :Tabularize /:\zs<CR>
+        vmap <Leader>t: :Tabularize /:\zs<CR>
+    endif
+
+    " a plugin to change between foo.c and foo.h files
+    if exists(":A")
+        nmap <C-a> :A<CR>
+    endif
+
+    " Fuzzy file finder
+    if exists(":FufCoverageFile")
+        nnoremap <Leader>fc :FufCoverageFile<CR>
+    endif
+
+    nmap ,t <Esc>:tabnew<CR>
+
+    " NERD commenter
+    map <Leader>c <plug>NERDCommenterTogglej
+    map <Leader>x <plug>NERDCommenterYankp
+    map <Leader>v <plug>NERDCommenterMinimal
+
+endfunction
 
 "vertical/horizontal scroll off settings
 set scrolloff=3
@@ -79,22 +143,10 @@ set sidescrolloff=7
 set sidescroll=1
 
 " don't use Ex mode, use Q for formatting
-map Q gq
+"nmap Q gq
 
 "make <cr> clear the highlight as well as redraw
 nnoremap <CR> :nohls<CR><C-L>
-
-let mapleader=','
-
-" Fuzzy file finder
-nnoremap <Leader>fc :FufCoverageFile<CR>
-
-"nmap ,t <Esc>:tabnew<CR>
-
-" NERD commenter
-map <Leader>c <plug>NERDCommenterTogglej
-map <Leader>x <plug>NERDCommenterYankp
-map <Leader>v <plug>NERDCommenterMinimal
 
 "ragtag Ghetto XML/HTML mappings (formerly allml.vim)
 let g:ragtag_global_maps = 1
@@ -106,6 +158,11 @@ let g:ackprg="ack-grep -H --nocolor --nogroup --column"
 nmap <silent> <leader>cf <ESC>/\v^[<=>]{7}( .*\|$)<CR>
 
 command! KillWhitespace :normal :%s/ *$//g<cr><c-o><cr>
+
+nnoremap <S-Left> :tabprevious<CR>
+nnoremap <S-Right> :tabnext<CR>
+nnoremap <silent> <A-Left> :execute 'silent! tabmove ' . (tabpagenr()-2)<CR>
+nnoremap <silent> <A-Right> :execute 'silent! tabmove ' . tabpagenr()<CR>
 
 " easier navigation between split windows
 nnoremap <c-j> <c-w>j
@@ -194,9 +251,6 @@ set statusline+=Buf:#%n
 set statusline+=[%b][0x%B]
 set laststatus=2
 
-"recalculate the trailing whitespace warning when idle, and after saving
-autocmd cursorhold,bufwritepost * unlet! b:statusline_trailing_space_warning
-
 "return '[\s]' if trailing white space is detected
 "return '' otherwise
 function! StatuslineTrailingSpaceWarning()
@@ -227,9 +281,6 @@ function! StatuslineCurrentHighlight()
     endif
 endfunction
 
-"recalculate the tab warning flag when idle and after writing
-autocmd cursorhold,bufwritepost * unlet! b:statusline_tab_warning
-
 "return '[&et]' if &et is set wrong
 "return '[mixed-indenting]' if spaces and tabs are used to indent
 "return an empty string if everything is fine
@@ -254,9 +305,6 @@ function! StatuslineTabWarning()
     endif
     return b:statusline_tab_warning
 endfunction
-
-"recalculate the long line warning when idle and after saving
-"autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
 
 "return a warning for "long lines" where "long" is either &textwidth or 80 (if
 "no &textwidth is set)
@@ -322,6 +370,8 @@ endfunction
 "syntastic settings
 let g:syntastic_enable_signs=1
 let g:syntastic_auto_loc_list=2
+"let g:syntastic_auto_jump=1
+let g:syntastic_stl_format = '[%E{Err: %fe #%e}%B{, }%W{Warn: %fw #%w}]'
 
 "snipmate settings
 let g:snips_author = "Jukka Kaartinen"
@@ -348,6 +398,9 @@ nnoremap <f1> :NERDTreeToggle<cr>
 nnoremap <f2> :BufExplorer<cr>
 nnoremap <f3> :TlistToggle<cr>
 
+" insert real tab
+noremap <S-Tab> <C-V><Tab>
+
 "source project specific config files
 runtime! projects/**/*.vim
 
@@ -356,7 +409,7 @@ if !has("gui")
     let g:CSApprox_loaded = 1
 endif
 
-"make Y consistent with C and D
+" Yank from the cursor to the end of the line, to be consistent with C and D.
 nnoremap Y y$
 
 "visual search mappings
@@ -369,20 +422,28 @@ endfunction
 vnoremap * :<C-u>call <SID>VSetSearch()<CR>//<CR>
 vnoremap # :<C-u>call <SID>VSetSearch()<CR>??<CR>
 
+" visual shifting (does not exit Visual mode)
+vnoremap < <gv
+vnoremap > >gv
+
+"some convenient mappings
+"inoremap <expr> <Esc>      pumvisible() ? "\<C-e>" : "\<Esc>"
+"inoremap <expr> <CR>       pumvisible() ? "\<C-y>" : "\<CR>"
+"inoremap <expr> <Down>     pumvisible() ? "\<C-n>" : "\<Down>"
+"inoremap <expr> <Up>       pumvisible() ? "\<C-p>" : "\<Up>"
+"inoremap <expr> <C-d>      pumvisible() ? "\<PageDown>\<C-p>\<C-n>" : "\<C-d>"
+"inoremap <expr> <C-u>      pumvisible() ? "\<PageUp>\<C-p>\<C-n>" : "\<C-u>"
+
 " Bubble single lines
 nmap <C-Up> [e
 nmap <C-Down> ]e
 
 " Bubble multiple lines
 vmap <C-Up> [egv
+nnoremap <silent> <A-Right> :execute 
+nnoremap <silent> <A-Right> :execute 
+nnoremap <silent> <A-Right> :execute 
 vmap <C-Down> ]egv
-
-if exists(":Tabularize")
-  nmap <Leader>t= :Tabularize /=<CR>
-  vmap <Leader>t= :Tabularize /=<CR>
-  nmap <Leader>t: :Tabularize /:\zs<CR>
-  vmap <Leader>t: :Tabularize /:\zs<CR>
-endif
 
 inoremap <silent> <Bar>   <Bar><Esc>:call <SID>align()<CR>a
 
@@ -397,21 +458,6 @@ function! s:align()
   endif
 endfunction
 
-"jump to last cursor position when opening a file
-"dont do it when writing a commit log entry
-autocmd BufReadPost * call SetCursorPosition()
-function! SetCursorPosition()
-    if &filetype !~ 'svn\|commit\c'
-        if line("'\"") > 0 && line("'\"") <= line("$")
-            exe "normal! g`\""
-            normal! zz
-        endif
-    end
-endfunction
-
-"spell check when writing commit logs
-autocmd filetype svn,*commit* set spell
-
 " for creating c++ tags
 nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h hpp -I --langmap=c++:.h.H..hpp.HPP.inl.INL.cpp.CPP<CR>
 nmap <Leader>tr :! ctags --recurse<CR>
@@ -424,12 +470,7 @@ nmap <F9> :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
   \:!cscope -b -i cscope.files -f cscope.out<CR>
   \:cs reset<CR>
 
-
-"find . -regex ".*\.\(c\|h\|hpp\|cc\|cpp\)" -print | ctags --totals --recurse --extra="+qf" --fields="+i" -L -
-"select_files > cscope.files
-"ctags -L s:cscope_files
-"ctags -e -L cscope_files
-"cscope -ub -i cscope_files
+" cscope mappings are in plugin/cscope_maps.vim
 
 set tags=tags;/                                 " recursively serach for tags
 set tags+=~/.vim/tags/usr_include_tags
@@ -438,17 +479,6 @@ set tags+=~/.vim/tags/usr_include_tags
 "set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags
 "set tags+=M:\\epoc32\\include\\MCL_tags
 
-" cscope is in autoload/cscope_maps.vim
-
-
-" When vimrc is edited, reload it
-autocmd! bufwritepost vimrc source ~\.vimrc
-
-" a plugin to change between foo.c and foo.h files
-if exists(':A')
-    nmap <C-a> :A<CR>
-endif
-
 " function to strip trailing spaces
 fun! <SID>StripTrailingWhitespaces()
     let l = line(".")
@@ -456,7 +486,7 @@ fun! <SID>StripTrailingWhitespaces()
     %s/\s\+$//e
     call cursor(l, c)
 endfun
-nmap rs :call <SID>StripTrailingWhitespaces()
+nmap <Leader>rs :call <SID>StripTrailingWhitespaces()<CR>
 
 fun! <SID>StripTrailingWhitespaces()
     let l = line(".")
@@ -466,27 +496,6 @@ fun! <SID>StripTrailingWhitespaces()
 endfun
 
 let g:gundo_disable=1
-
-" auto remove trailing spaces from these files
-autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
-autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
-autocmd BufWritePre *.c :call <SID>StripTrailingWhitespaces()
-autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
-autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
-
-" When editing a file, always jump to the last known cursor position.
-" Don't do it when the position is invalid or when inside an event handler
-" (happens when dropping a file on gvim).
-" Also don't do it when the mark is in the first line, that is the default
-" position when opening a file.
-"if has("autocmd")
-"autocmd BufReadPost *
-"            \ if line("'\"") > 1 && line("'\"") <= line("$") |
-"            \   exe "normal! g`\"" |
-"            \ endif
-"else
-"  set autoindent		" always set autoindenting on
-"endif " has("autocmd")
 
 " Convenient command to see the difference between the current buffer and the
 " file it was loaded from, thus the changes you made.
