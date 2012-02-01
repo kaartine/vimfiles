@@ -8,7 +8,12 @@ set nocompatible
 "call pathogen#runtime_append_all_bundles()
 call pathogen#infect()
 
-syntax on "turn on syntax highlighting
+" Switch syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
 set encoding=utf-8
 
 "load ftplugins and indent files
@@ -95,7 +100,11 @@ if has("autocmd")
   "autocmd cursorhold,bufwritepost * unlet! b:statusline_long_line_warning
 
   " When vimrc is edited, reload it
-  autocmd! bufwritepost vimrc source ~/.vimrc
+  if !has('win32') && !has('win64')
+      autocmd! bufwritepost vimrc source ~/.vimrc
+  else
+      autocmd! bufwritepost vimrc source $VIM\_vimrc
+  endif
 
   " auto remove trailing spaces from these files
   autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
@@ -106,7 +115,12 @@ if has("autocmd")
 
   "Custom mappings for plugins
   autocmd VimEnter * call Plugins()"
-endif
+
+else
+
+  set autoindent		" always set autoindenting on
+
+endif " has("autocmd")
 
 "PLUGIN OPTIONS
 function! Plugins()
@@ -170,15 +184,25 @@ nnoremap <c-k> <c-w>k
 nnoremap <c-h> <c-w>h
 nnoremap <c-l> <c-w>l
 
-set backupdir=~/.vim/_backup " where to put backup files.
-set directory=~/.vim/_temp " where to put swap files."
+if !has('win32') && !has('win64')
+    set backupdir=~/.vim/_backup " where to put backup files.
+    set directory=~/.vim/_temp " where to put swap files."
+else
+    set backupdir=$VIM\vimfiles\_backup " where to put backup files.
+    set directory=$VIM\vimfiles\_temp " where to put swap files."
+endif
 
 "stora lots of :cmdline history
 set history=1000
 
 if v:version >= 703
     "undo settings
-    set undodir=~/.vim/undofiles
+    if !has('win32') && !has('win64')
+        set undodir=~/.vim/undofiles
+    else
+        set undodir=$VIM\vimfiles\undofiles
+    endif
+
     set undofile
 
     set colorcolumn=+1 "mark the ideal max text width
@@ -197,6 +221,7 @@ set formatoptions-=o "dont continue comments when pushing o/O
 
 
 "set guifont=DejaVu:Sans:Mono "":h10:cANSI " font
+set guifont=courier_new:h10
 
 "some stuff to get the mouse going in term
 set mouse=a
