@@ -16,6 +16,9 @@ if &t_Co > 2 || has("gui_running")
 endif
 set encoding=utf-8
 
+"tell the term has 256 colors
+"set t_Co=256
+
 "load ftplugins and indent files
 filetype plugin indent on
 
@@ -221,14 +224,10 @@ set formatoptions-=o "dont continue comments when pushing o/O
 
 
 "set guifont=DejaVu:Sans:Mono "":h10:cANSI " font
-set guifont=courier_new:h10
 
 "some stuff to get the mouse going in term
 set mouse=a
 set ttymouse=xterm2
-
-"tell the term has 256 colors
-set t_Co=256
 
 "statusline setup
 set statusline=%f       "tail of the filename
