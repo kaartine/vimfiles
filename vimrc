@@ -224,7 +224,11 @@ set formatoptions-=o "dont continue comments when pushing o/O
 
 
 "set guifont=DejaVu:Sans:Mono "":h10:cANSI " font
-set guifont=courier_new:h10
+if has('mac')
+    set guifont=courier_new:h12
+else
+    set guifont=courier_new:h10
+endif
 
 "some stuff to get the mouse going in term
 set mouse=a
