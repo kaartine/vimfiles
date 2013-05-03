@@ -17,13 +17,14 @@ endif
 set encoding=utf-8
 
 "tell the term has 256 colors
-"set t_Co=256
+set t_Co=256
 
 "load ftplugins and indent files
 filetype plugin indent on
 
 set background=dark
-color molokai              " color scheme
+"color molokai              " color scheme
+color railscasts           " color scheme
 
 set showcmd     "show incomplete cmds down the bottom
 set showmode    "show current mode down the bottom
@@ -44,7 +45,7 @@ set autoindent
 set backspace=indent,eol,start "allow backspacing over everything in insert mode
 
 "List chars
-set listchars=tab:\ \
+set listchars=tab:▸▸
 set listchars+=trail:.
 "set listchars+=nbsp:.
 set listchars+=extends:> "The character to show in the last column when wrap is off
@@ -56,6 +57,28 @@ set incsearch   "find the next match as we type the search
 set hlsearch    "hilight searches by default
 set ignorecase  "searches are case insensitive
 set smartcase   " ... unless they contain at least one capital letter
+
+function! KernelCoding()
+    set number                              " display line number
+    set noexpandtab                         " use tabs, not spaces
+    set tabstop=8                           " tabstops of 8
+    set shiftwidth=8                        " indents of 8
+    set textwidth=78                        " screen in 80 columns wide, wrap at 78
+    set autoindent smartindent              " turn on auto/smart indenting
+    set smarttab                            " make <tab> and <backspace> smarter
+    nmap <C-J> vip=                         " forces (re)indentation of a block of code
+    " highligh kernel types
+    syn keyword cType uint ubyte ulong uint64_t uint32_t uint16_t uint8_t boolean_t int64_t 
+    syn keyword cType int32_t int16_t int8_t u_int64_t u_int32_t u_int16_t u_int8_t
+    syn keyword cOperator likely unlikely
+    syn match ErrorLeadSpace /^ \+/         " highlight any leading spaces
+"    syn match ErrorTailSpace / \+$/         " highlight any trailing spaces
+"    syn match Error80        /\%>80v.\+/    " highlight anything past 80 in red
+    set formatoptions=tcqlron               " automatically add comment leaders
+    set cinoptions=:0,l1,t0,g0              " handle C indention
+    set foldmethod=syntax                   " fold on braces
+    "let $kernel_version=system('uname -r | tr -d "\n"')
+endfunction
 
 function! s:setupWrapping()
   set wrap
@@ -104,7 +127,7 @@ if has("autocmd")
 
   " When vimrc is edited, reload it
   if !has('win32') && !has('win64')
-      autocmd! bufwritepost vimrc source ~/.vimrc
+      autocmd! bufwritepost .vimrc source ~/.vimrc
   else
       autocmd! bufwritepost vimrc source $VIM\_vimrc
   endif
@@ -119,6 +142,8 @@ if has("autocmd")
   "Custom mappings for plugins
   autocmd VimEnter * call Plugins()"
 
+  "Set working directory to the current file
+  autocmd BufEnter * silent! lcd %:p:h
 else
 
   set autoindent		" always set autoindenting on
@@ -227,7 +252,7 @@ set formatoptions-=o "dont continue comments when pushing o/O
 if has('mac')
     set guifont=courier_new:h12
 else
-    set guifont=courier_new:h10
+    set guifont=Sans\ 8
 endif
 
 "some stuff to get the mouse going in term
@@ -398,7 +423,7 @@ endfunction
 
 "syntastic settings
 let g:syntastic_enable_signs=1
-let g:syntastic_auto_loc_list=2
+"let g:syntastic_auto_loc_list=2
 "let g:syntastic_auto_jump=1
 let g:syntastic_stl_format = '[%E{Err: %fe #%e}%B{, }%W{Warn: %fw #%w}]'
 
@@ -421,6 +446,7 @@ let Tlist_Show_One_File = 1
 "nerdtree settings
 let g:NERDTreeMouseMode = 2
 let g:NERDTreeWinSize = 40
+let g:NERDTreeChDirMode = 2
 
 "explorer mappings
 nnoremap <f1> :NERDTreeToggle<cr>
@@ -488,7 +514,7 @@ function! s:align()
 endfunction
 
 " for creating c++ tags
-nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h hpp -I --langmap=c++:.h.H..hpp.HPP.inl.INL.cpp.CPP<CR>
+nmap <Leader>tc :! ctags --recurse --extra=+fq --c++-kinds=+p --fields=+iaS -h hpp -I --langmap=c++:.h.H..hpp.HPP.inl.INL.cpp.CPP,c:.h.H.c.C<CR>
 nmap <Leader>tr :! ctags --recurse<CR>
 
 "let s:cscope_files = find . -regex ".*\.\(c\|h\|hpp\|cc\|cpp\)" -print
@@ -502,7 +528,14 @@ nmap <F9> :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
 " cscope mappings are in plugin/cscope_maps.vim
 
 set tags=tags;/                                 " recursively serach for tags
-set tags+=~/.vim/tags/usr_include_tags
+"set tags+=~/.vim/tags/usr_include_tags
+"set tags+=~/ics_r3/hardware/tags
+"set tags+=~/ics_r3/packages/tags
+"set tags+=~/ics_r3/frameworks/tags
+"set tags+=~/work/jb_422/kernel/tags
+"set tags+=~/work/jb_422/hardware/intel/libcamera2/tags
+"set tags+=~/jb_main/packages/tags
+"set tags+=~/jb_main/frameworks/tags
 "set tags+=C:\Qt\4.7.1-symbian\src\tags      " Qt (symbian) tags
 "set tags+=c:\Qt\Symbian\4.6.3\src\tags      " Qt (symbian) tags
 "set tags+=C:\Code\Stadi.tv\Platform\Client\LibProject\tags    " Lame tags

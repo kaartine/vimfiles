@@ -33,7 +33,7 @@
        url = https://github.com/vim-scripts/bufexplorer.zip.git
 [submodule "bundle/ack"]
 	path = bundle/ack
-	url = git://github.com/mileszs/ack.vim.git
+	url = https://github.com/mileszs/ack.vim.git
 [submodule "bundle/a"]
        path = bundle/a
        url = https://github.com/vim-scripts/a.vim.git
@@ -69,10 +69,10 @@
        url = https://github.com/godlygeek/tabular.git
 [submodule "ack.vim"]
 	path = ack.vim
-	url = git://github.com/mileszs/ack.vim.git
+	url = https://github.com/mileszs/ack.vim.git
 [submodule "bundle/FuzzyFinder"]
 	path = bundle/FuzzyFinder
-	url = git://github.com/vim-scripts/FuzzyFinder.git
+	url = https://github.com/vim-scripts/FuzzyFinder.git
 [submodule "bundle/L9"]
 	path = bundle/L9
-	url = git://github.com/vim-scripts/L9.git
+	url = https://github.com/vim-scripts/L9.git
