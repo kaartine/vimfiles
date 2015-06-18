@@ -2,6 +2,8 @@
 "This must be first, because it changes other options as a side effect.
 set nocompatible
 
+set spell
+
 "activate pathogen keep these before configuring plugins
 "runtime! autoload/pathogen.vim
 "call pathogen#helptags()
@@ -15,6 +17,8 @@ if &t_Co > 2 || has("gui_running")
   set hlsearch
 endif
 set encoding=utf-8
+
+set autochdir
 
 "tell the term has 256 colors
 set t_Co=256
@@ -47,7 +51,7 @@ set backspace=indent,eol,start "allow backspacing over everything in insert mode
 "List chars
 set listchars=tab:▸▸
 set listchars+=trail:.
-"set listchars+=nbsp:.
+set listchars+=nbsp:.
 set listchars+=extends:> "The character to show in the last column when wrap is off
             "and the line continues beyond the right of the screen
 set listchars+=precedes:< "The character to show in the last column when wrap
@@ -66,14 +70,13 @@ function! KernelCoding()
     set textwidth=78                        " screen in 80 columns wide, wrap at 78
     set autoindent smartindent              " turn on auto/smart indenting
     set smarttab                            " make <tab> and <backspace> smarter
-    nmap <C-J> vip=                         " forces (re)indentation of a block of code
     " highligh kernel types
     syn keyword cType uint ubyte ulong uint64_t uint32_t uint16_t uint8_t boolean_t int64_t 
     syn keyword cType int32_t int16_t int8_t u_int64_t u_int32_t u_int16_t u_int8_t
     syn keyword cOperator likely unlikely
     syn match ErrorLeadSpace /^ \+/         " highlight any leading spaces
-"    syn match ErrorTailSpace / \+$/         " highlight any trailing spaces
-"    syn match Error80        /\%>80v.\+/    " highlight anything past 80 in red
+    "    syn match ErrorTailSpace / \+$/         " highlight any trailing spaces
+    "    syn match Error80        /\%>80v.\+/    " highlight anything past 80 in red
     set formatoptions=tcqlron               " automatically add comment leaders
     set cinoptions=:0,l1,t0,g0              " handle C indention
     set foldmethod=syntax                   " fold on braces
@@ -136,17 +139,19 @@ if has("autocmd")
   autocmd BufWritePre *.h :call <SID>StripTrailingWhitespaces()
   autocmd BufWritePre *.cpp :call <SID>StripTrailingWhitespaces()
   autocmd BufWritePre *.c :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.cc :call <SID>StripTrailingWhitespaces()
   autocmd BufWritePre *.rb :call <SID>StripTrailingWhitespaces()
+  autocmd BufWritePre *.py :call <SID>StripTrailingWhitespaces()
   autocmd BufWritePre *.haml :call <SID>StripTrailingWhitespaces()
 
   "Custom mappings for plugins
   autocmd VimEnter * call Plugins()"
 
   "Set working directory to the current file
-  autocmd BufEnter * silent! lcd %:p:h
+  "autocmd BufEnter * silent! lcd %:p:h
 else
 
-  set autoindent		" always set autoindenting on
+  set autoindent    " always set autoindenting on
 
 endif " has("autocmd")
 
@@ -252,7 +257,7 @@ set formatoptions-=o "dont continue comments when pushing o/O
 if has('mac')
     set guifont=courier_new:h12
 else
-    set guifont=Sans\ 8
+    set guifont=Monospace\ 9
 endif
 
 "some stuff to get the mouse going in term
@@ -449,9 +454,9 @@ let g:NERDTreeWinSize = 40
 let g:NERDTreeChDirMode = 2
 
 "explorer mappings
-nnoremap <f1> :NERDTreeToggle<cr>
-nnoremap <f2> :BufExplorer<cr>
-nnoremap <f3> :TlistToggle<cr>
+nnoremap ! :NERDTreeToggle<cr>
+nnoremap " :BufExplorer<cr>
+nnoremap ¤ :TlistToggle<cr>
 
 " insert real tab
 noremap <S-Tab> <C-V><Tab>
@@ -519,20 +524,28 @@ nmap <Leader>tr :! ctags --recurse<CR>
 
 "let s:cscope_files = find . -regex ".*\.\(c\|h\|hpp\|cc\|cpp\)" -print
 "map <F8> :!ctags -R --totals --c++-kinds=+p --fields=+iaS --extra=+qf .<CR>
-map <F8> :!ctags -R --totals --c++-kinds=+px --c-kinds=+px --fields=+iaSn -I --extra=+qf --langmap=c++:.h.H.hpp.inl.INL.cpp.CPP,c:.h.H.c.C<CR>
+map <Leader>8 :!ctags -R --totals --c++-kinds=+px --c-kinds=+px --fields=+iaSn -I --extra=+qf --langmap=c++:.h.H.hpp.inl.INL.cpp.CPP,c:.h.H.c.C<CR>
 
-nmap <F9> :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
+nmap <Leader>9 :!find . -regex ".*\\.\\(c\\|h\\|hpp\\|cc\\|cpp\\)" > cscope.files<CR>
   \:!cscope -b -i cscope.files -f cscope.out<CR>
   \:cs reset<CR>
 
 " cscope mappings are in plugin/cscope_maps.vim
-
-set tags=tags;/                                 " recursively serach for tags
+set tags=./tags,tags;
+if $ANDROID_BUILD_TOP != ""
+    set tags+=$ANDROID_BUILD_TOP/linux/kernel/tags
+    set tags+=$ANDROID_BUILD_TOP/linux-3.10/tags
+    set tags+=$ANDROID_BUILD_TOP/vendor/intel/tags
+    set tags+=$ANDROID_BUILD_TOP/system/tags
+    set tags+=$ANDROID_BUILD_TOP/frameworks/tags
+    set tags+=$ANDROID_BUILD_TOP/device/intel/tags
+    set tags+=$ANDROID_BUILD_TOP/hardware/tags
+endif
 "set tags+=~/.vim/tags/usr_include_tags
 "set tags+=~/ics_r3/hardware/tags
 "set tags+=~/ics_r3/packages/tags
 "set tags+=~/ics_r3/frameworks/tags
-"set tags+=~/work/jb_422/kernel/tags
+"set tags+=/media/work/main/linux/kernel/tags
 "set tags+=~/work/jb_422/hardware/intel/libcamera2/tags
 "set tags+=~/jb_main/packages/tags
 "set tags+=~/jb_main/frameworks/tags

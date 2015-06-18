@@ -2,7 +2,8 @@
 color railscasts
 
 "set guifont=Menlo\ Regular:h14
-set guifont=Sans\ 8
+"set guifont=Sans\ 8
+"set guifont=Monospace\ 9
 set linespace=2
 set antialias
 
